@@ -33,12 +33,18 @@ Opens the currently selected Finder item with Windsurf.
 ### 3. Open New Window
 Opens a new Windsurf window.
 
+### 4. Show Installed Extensions
+View and manage your installed Windsurf extensions.
+
+### 5. Install Extension
+Search and install extensions from the VS Code Marketplace.
+
 ## Installation
 
 ### From Source
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/ma-samsik/raycast-windsurf-extension.git
 cd raycast-windsurf-extension
 npm install
 npm run dev
