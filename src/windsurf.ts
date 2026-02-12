@@ -69,16 +69,25 @@ export async function openProjectInWindsurf(
  */
 export async function openNewWindsurfWindow(): Promise<void> {
   try {
-    // Try windsurf command with --new flag
+    // Method 1: Try windsurf CLI with -n flag (new window)
     try {
-      await execFileAsync("windsurf", ["--new"]);
+      await execFileAsync("windsurf", ["-n"]);
       return;
     } catch (error) {
-      console.log("CLI --new failed, trying open -a...", error);
+      console.log("CLI -n failed, trying --new-window...", error);
     }
 
-    // Fallback: Use open -a
-    await execFileAsync("open", ["-a", "Windsurf", "--new"]);
+    // Method 2: Try with --new-window flag
+    try {
+      await execFileAsync("windsurf", ["--new-window"]);
+      return;
+    } catch (error) {
+      console.log("CLI --new-window failed, trying open -na...", error);
+    }
+
+    // Method 3: Use open -na with args (macOS)
+    // -n = new instance, -a = application
+    await execFileAsync("open", ["-na", "Windsurf", "--args", "-n"]);
   } catch (error) {
     console.error("Error opening new Windsurf window:", error);
     await showToast(
@@ -86,5 +95,6 @@ export async function openNewWindsurfWindow(): Promise<void> {
       "Failed to open new Windsurf window",
       "Make sure Windsurf is installed"
     );
+    throw error;
   }
 }
