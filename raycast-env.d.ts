@@ -32,6 +32,10 @@ declare namespace Preferences {
   export type OpenWithWindsurf = ExtensionPreferences & {}
   /** Preferences accessible in the `open-new-window` command */
   export type OpenNewWindow = ExtensionPreferences & {}
+  /** Preferences accessible in the `extensions` command */
+  export type Extensions = ExtensionPreferences & {}
+  /** Preferences accessible in the `install-extension` command */
+  export type InstallExtension = ExtensionPreferences & {}
 }
 
 declare namespace Arguments {
@@ -41,5 +45,9 @@ declare namespace Arguments {
   export type OpenWithWindsurf = {}
   /** Arguments passed to the `open-new-window` command */
   export type OpenNewWindow = {}
+  /** Arguments passed to the `extensions` command */
+  export type Extensions = {}
+  /** Arguments passed to the `install-extension` command */
+  export type InstallExtension = {}
 }
 

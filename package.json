@@ -37,6 +37,20 @@
       "subtitle": "Windsurf",
       "description": "Opens a new Windsurf window.",
       "mode": "no-view"
+    },
+    {
+      "name": "extensions",
+      "title": "Show Installed Extensions",
+      "subtitle": "Windsurf",
+      "description": "Manage Installed Extensions",
+      "mode": "view"
+    },
+    {
+      "name": "install-extension",
+      "title": "Install Extension",
+      "subtitle": "Windsurf",
+      "description": "Install Extensions from the Marketplace",
+      "mode": "view"
     }
   ],
   "preferences": [

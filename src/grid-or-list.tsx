@@ -1,4 +1,3 @@
-import React from "react";
 import { List, Grid } from "@raycast/api";
 import { layout } from "./preferences";
 
@@ -8,8 +7,8 @@ interface ListOrGridCommonProps {
   searchBarPlaceholder?: string;
   isLoading?: boolean;
   filtering?: { keepSectionOrder: boolean };
-  searchBarAccessory?: React.ReactNode;
-  children?: React.ReactNode;
+  searchBarAccessory?: any;
+  children?: any;
 }
 
 interface AccessoryTag {
@@ -50,10 +49,7 @@ export function ListOrGrid(props: ListOrGridCommonProps) {
   );
 }
 
-export function ListOrGridSection(props: {
-  title?: string;
-  children?: React.ReactNode;
-}) {
+export function ListOrGridSection(props: { title?: string; children?: any }) {
   if (layout === "grid") {
     return <Grid.Section title={props.title}>{props.children}</Grid.Section>;
   }
@@ -69,7 +65,7 @@ interface ListOrGridItemProps {
   content?: string | { fileIcon: string };
   keywords?: string[];
   accessories?: Accessory[];
-  actions?: React.ReactNode;
+  actions?: any;
 }
 
 export function ListOrGridItem(props: ListOrGridItemProps) {
@@ -85,7 +81,7 @@ export function ListOrGridItem(props: ListOrGridItemProps) {
         subtitle={props.subtitle}
         content={contentValue}
         keywords={props.keywords}
-        actions={props.actions as unknown as React.ReactElement}
+        actions={props.actions}
       />
     );
   }
@@ -112,7 +108,7 @@ export function ListOrGridItem(props: ListOrGridItemProps) {
           tooltip: acc.tooltip,
         })) || []
       }
-      actions={props.actions as unknown as React.ReactElement}
+      actions={props.actions}
     />
   );
 }
@@ -122,19 +118,18 @@ export function ListOrGridDropdown(props: {
   defaultValue?: string;
   storeValue?: boolean;
   onChange?: (value: string) => void;
-  children?: React.ReactNode;
+  children?: any;
 }) {
   // Grid doesn't support dropdown in searchBar, only List does
-  return (
-    <List.Dropdown
-      tooltip={props.tooltip}
-      defaultValue={props.defaultValue || ""}
-      storeValue={props.storeValue}
-      onChange={props.onChange}
-    >
-      {props.children}
-    </List.Dropdown>
-  );
+  // When in Grid mode, filtering by type won't work via dropdown
+  const dropdownProps: any = {};
+  if (props.tooltip) dropdownProps.tooltip = props.tooltip;
+  if (props.defaultValue) dropdownProps.defaultValue = props.defaultValue;
+  if (props.storeValue !== undefined)
+    dropdownProps.storeValue = props.storeValue;
+  if (props.onChange) dropdownProps.onChange = props.onChange;
+
+  return <List.Dropdown {...dropdownProps}>{props.children}</List.Dropdown>;
 }
 
 export function ListOrGridDropdownItem(props: {
@@ -144,8 +139,6 @@ export function ListOrGridDropdownItem(props: {
   return <List.Dropdown.Item title={props.title} value={props.value} />;
 }
 
-export function ListOrGridDropdownSection(props: {
-  children?: React.ReactNode;
-}) {
+export function ListOrGridDropdownSection(props: { children?: any }) {
   return <List.Dropdown.Section>{props.children}</List.Dropdown.Section>;
 }
