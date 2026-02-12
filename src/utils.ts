@@ -9,11 +9,17 @@ import {
 } from "./types";
 
 export function isFileEntry(entry: EntryLike): entry is FileEntry {
-  return "fileUri" in entry && !("folderUri" in entry) && !("workspace" in entry);
+  return (
+    "fileUri" in entry && !("folderUri" in entry) && !("workspace" in entry)
+  );
 }
 
 export function isFolderEntry(entry: EntryLike): entry is FolderEntry {
-  return "folderUri" in entry && !("workspace" in entry) && !("remoteAuthority" in entry);
+  return (
+    "folderUri" in entry &&
+    !("workspace" in entry) &&
+    !("remoteAuthority" in entry)
+  );
 }
 
 export function isWorkspaceEntry(entry: EntryLike): entry is WorkspaceEntry {
@@ -21,10 +27,16 @@ export function isWorkspaceEntry(entry: EntryLike): entry is WorkspaceEntry {
 }
 
 export function isRemoteEntry(entry: EntryLike): entry is RemoteEntry {
-  return "folderUri" in entry && "remoteAuthority" in entry && !("workspace" in entry);
+  return (
+    "folderUri" in entry &&
+    "remoteAuthority" in entry &&
+    !("workspace" in entry)
+  );
 }
 
-export function isRemoteWorkspaceEntry(entry: EntryLike): entry is RemoteWorkspaceEntry {
+export function isRemoteWorkspaceEntry(
+  entry: EntryLike
+): entry is RemoteWorkspaceEntry {
   return "workspace" in entry && "remoteAuthority" in entry;
 }
 
@@ -54,7 +66,9 @@ export function filterEntriesByType(type: EntryType | null) {
 
 export function filterUnpinnedEntries(pinnedEntries: EntryLike[]) {
   return (entry: EntryLike) => {
-    return !pinnedEntries.some((pinnedEntry) => isSameEntry(pinnedEntry, entry));
+    return !pinnedEntries.some((pinnedEntry) =>
+      isSameEntry(pinnedEntry, entry)
+    );
   };
 }
 
@@ -69,7 +83,10 @@ export function isSameEntry(entry1: EntryLike, entry2: EntryLike): boolean {
     return entry1.fileUri === entry2.fileUri;
   }
   if (isRemoteEntry(entry1) && isRemoteEntry(entry2)) {
-    return entry1.folderUri === entry2.folderUri && entry1.remoteAuthority === entry2.remoteAuthority;
+    return (
+      entry1.folderUri === entry2.folderUri &&
+      entry1.remoteAuthority === entry2.remoteAuthority
+    );
   }
   if (isRemoteWorkspaceEntry(entry1) && isRemoteWorkspaceEntry(entry2)) {
     return (

@@ -1,15 +1,5 @@
-import {
-  List,
-  Grid,
-  Action,
-  ActionPanel,
-  Icon,
-  ReactNode,
-  RootSearchBarAccessory,
-  SearchBarAccessoryDropdown,
-  SearchBarAccessoryDropdownItem,
-  SearchBarAccessoryDropdownSection,
-} from "@raycast/api";
+import React from "react";
+import { List, Grid } from "@raycast/api";
 import { layout } from "./preferences";
 
 interface ListOrGridCommonProps {
@@ -18,12 +8,23 @@ interface ListOrGridCommonProps {
   searchBarPlaceholder?: string;
   isLoading?: boolean;
   filtering?: { keepSectionOrder: boolean };
-  searchBarAccessory?: ReactNode;
-  children?: ReactNode;
+  searchBarAccessory?: React.ReactNode;
+  children?: React.ReactNode;
+}
+
+interface AccessoryTag {
+  value: string;
+  color: string | { light: string; dark: string; adjustContrast?: boolean };
+}
+
+interface Accessory {
+  tag?: AccessoryTag;
+  tooltip?: string;
 }
 
 export function ListOrGrid(props: ListOrGridCommonProps) {
   if (layout === "grid") {
+    // Grid doesn't support dropdown in searchBarAccessory
     return (
       <Grid
         columns={props.columns}
@@ -31,7 +32,6 @@ export function ListOrGrid(props: ListOrGridCommonProps) {
         searchBarPlaceholder={props.searchBarPlaceholder}
         isLoading={props.isLoading}
         filtering={props.filtering}
-        searchBarAccessory={props.searchBarAccessory as RootSearchBarAccessory}
       >
         {props.children}
       </Grid>
@@ -43,14 +43,17 @@ export function ListOrGrid(props: ListOrGridCommonProps) {
       searchBarPlaceholder={props.searchBarPlaceholder}
       isLoading={props.isLoading}
       filtering={props.filtering}
-      searchBarAccessory={props.searchBarAccessory as RootSearchBarAccessory}
+      searchBarAccessory={props.searchBarAccessory}
     >
       {props.children}
     </List>
   );
 }
 
-export function ListOrGridSection(props: { title?: string; children?: ReactNode }) {
+export function ListOrGridSection(props: {
+  title?: string;
+  children?: React.ReactNode;
+}) {
   if (layout === "grid") {
     return <Grid.Section title={props.title}>{props.children}</Grid.Section>;
   }
@@ -58,43 +61,58 @@ export function ListOrGridSection(props: { title?: string; children?: ReactNode 
   return <List.Section title={props.title}>{props.children}</List.Section>;
 }
 
-export function ListOrGridItem(props: {
+interface ListOrGridItemProps {
   id?: string;
   title: string;
   subtitle?: string;
-  icon?: { fileIcon: string };
-  content?: { fileIcon: string };
+  icon?: string | { fileIcon: string };
+  content?: string | { fileIcon: string };
   keywords?: string[];
-  accessories?: Array<{ tag?: { value: string; color: string }; tooltip?: string }>;
-  actions?: ReactNode;
-}) {
+  accessories?: Accessory[];
+  actions?: React.ReactNode;
+}
+
+export function ListOrGridItem(props: ListOrGridItemProps) {
   if (layout === "grid") {
+    const contentValue =
+      typeof props.content === "string"
+        ? props.content
+        : props.content?.fileIcon || "";
     return (
       <Grid.Item
         id={props.id}
         title={props.title}
         subtitle={props.subtitle}
-        content={props.content?.fileIcon || ""}
+        content={contentValue}
         keywords={props.keywords}
-        actions={props.actions as JSX.Element}
+        actions={props.actions as unknown as React.ReactElement}
       />
     );
   }
+
+  const iconValue =
+    typeof props.icon === "string" ? { fileIcon: props.icon } : props.icon;
+  const colorToString = (color: AccessoryTag["color"]): string => {
+    if (typeof color === "string") return color;
+    return color.light;
+  };
 
   return (
     <List.Item
       id={props.id}
       title={props.title}
       subtitle={props.subtitle}
-      icon={props.icon?.fileIcon ? { fileIcon: props.icon.fileIcon } : undefined}
+      icon={iconValue}
       keywords={props.keywords}
       accessories={
         props.accessories?.map((acc) => ({
-          tag: acc.tag ? { value: acc.tag.value, color: acc.tag.color } : undefined,
+          tag: acc.tag
+            ? { value: acc.tag.value, color: colorToString(acc.tag.color) }
+            : undefined,
           tooltip: acc.tooltip,
         })) || []
       }
-      actions={props.actions as JSX.Element}
+      actions={props.actions as unknown as React.ReactElement}
     />
   );
 }
@@ -104,35 +122,30 @@ export function ListOrGridDropdown(props: {
   defaultValue?: string;
   storeValue?: boolean;
   onChange?: (value: string) => void;
-  children?: ReactNode;
+  children?: React.ReactNode;
 }) {
-  if (layout === "grid") {
-    return (
-      <SearchBarAccessoryDropdown
-        tooltip={props.tooltip}
-        defaultValue={props.defaultValue}
-        onSelect={props.onChange}
-      >
-        {props.children}
-      </SearchBarAccessoryDropdown>
-    );
-  }
-
+  // Grid doesn't support dropdown in searchBar, only List does
   return (
-    <SearchBarAccessoryDropdown
+    <List.Dropdown
       tooltip={props.tooltip}
-      defaultValue={props.defaultValue}
-      onSelect={props.onChange}
+      defaultValue={props.defaultValue || ""}
+      storeValue={props.storeValue}
+      onChange={props.onChange}
     >
       {props.children}
-    </SearchBarAccessoryDropdown>
+    </List.Dropdown>
   );
 }
 
-export function ListOrGridDropdownItem(props: { title: string; value: string }) {
-  return <SearchBarAccessoryDropdownItem title={props.title} value={props.value} />;
+export function ListOrGridDropdownItem(props: {
+  title: string;
+  value: string;
+}) {
+  return <List.Dropdown.Item title={props.title} value={props.value} />;
 }
 
-export function ListOrGridDropdownSection(props: { children?: ReactNode }) {
-  return <SearchBarAccessoryDropdownSection>{props.children}</SearchBarAccessoryDropdownSection>;
+export function ListOrGridDropdownSection(props: {
+  children?: React.ReactNode;
+}) {
+  return <List.Dropdown.Section>{props.children}</List.Dropdown.Section>;
 }

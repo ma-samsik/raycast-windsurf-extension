@@ -7,7 +7,9 @@ import * as fs from "fs";
 
 const execFileAsync = promisify(execFile);
 
-export async function getGitBranch(directoryPath: string): Promise<string | null> {
+export async function getGitBranch(
+  directoryPath: string
+): Promise<string | null> {
   try {
     // If it's a file URL, convert it to a file path
     if (directoryPath.startsWith("file://")) {
@@ -32,10 +34,14 @@ export async function getGitBranch(directoryPath: string): Promise<string | null
     }
 
     // Run git command to get current branch
-    const { stdout } = await execFileAsync("git", ["rev-parse", "--abbrev-ref", "HEAD"], {
-      cwd: directoryPath,
-      encoding: "utf-8",
-    });
+    const { stdout } = await execFileAsync(
+      "git",
+      ["rev-parse", "--abbrev-ref", "HEAD"],
+      {
+        cwd: directoryPath,
+        encoding: "utf-8",
+      }
+    );
 
     const branch = stdout.trim();
     return branch || null;

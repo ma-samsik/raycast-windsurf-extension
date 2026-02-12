@@ -11,18 +11,18 @@ const execFileAsync = promisify(execFile);
  * 2. CLI command: windsurf {path}
  * 3. macOS open command: open -a Windsurf {path}
  */
-export async function openProjectInWindsurf(projectPath: string, closeOthers = false): Promise<void> {
+export async function openProjectInWindsurf(
+  projectPath: string,
+  closeOthers = false
+): Promise<void> {
   try {
-    // Ensure the path is properly quoted and escaped
-    const escapedPath = projectPath.replace(/"/g, '\\"');
-    
     // Method 1: Try URL scheme
     try {
       const urlPath = encodeURIComponent(projectPath);
-      const openCommand = closeOthers 
+      const openCommand = closeOthers
         ? `windsurf://file/${urlPath}?command=open-new-window`
         : `windsurf://file/${urlPath}`;
-      
+
       await execFileAsync("open", [openCommand]);
       return;
     } catch (urlError) {
@@ -39,7 +39,9 @@ export async function openProjectInWindsurf(projectPath: string, closeOthers = f
 
     // Method 3: Use macOS open command with -a flag
     try {
-      const args = closeOthers ? ["-a", "Windsurf", "--new", projectPath] : ["-a", "Windsurf", projectPath];
+      const args = closeOthers
+        ? ["-a", "Windsurf", "--new", projectPath]
+        : ["-a", "Windsurf", projectPath];
       await execFileAsync("open", args);
       return;
     } catch (openError) {

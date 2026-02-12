@@ -46,7 +46,10 @@ export function usePinnedEntries(): EntryLike[] & PinMethods {
     const index = pinnedEntries.findIndex((e) => isSameEntry(e, entry));
     if (index > 0) {
       const newEntries = [...pinnedEntries];
-      [newEntries[index], newEntries[index - 1]] = [newEntries[index - 1], newEntries[index]];
+      [newEntries[index], newEntries[index - 1]] = [
+        newEntries[index - 1],
+        newEntries[index],
+      ];
       savePinnedEntries(newEntries);
     }
   };
@@ -55,7 +58,10 @@ export function usePinnedEntries(): EntryLike[] & PinMethods {
     const index = pinnedEntries.findIndex((e) => isSameEntry(e, entry));
     if (index < pinnedEntries.length - 1) {
       const newEntries = [...pinnedEntries];
-      [newEntries[index], newEntries[index + 1]] = [newEntries[index + 1], newEntries[index]];
+      [newEntries[index], newEntries[index + 1]] = [
+        newEntries[index + 1],
+        newEntries[index],
+      ];
       savePinnedEntries(newEntries);
     }
   };
