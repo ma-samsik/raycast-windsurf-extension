@@ -17,7 +17,6 @@ import { useRecentEntries } from "./database";
 import type { RemoveMethods } from "./database";
 import {
   keepSectionOrder,
-  closeOtherWindows,
   terminalApp,
   showGitBranch,
   gitBranchColor,
@@ -178,7 +177,7 @@ function LocalItem(
         if (mounted) {
           setGitBranch(branch);
         }
-      } catch (error) {
+      } catch {
         // Silently handle errors
       }
     }
@@ -189,16 +188,16 @@ function LocalItem(
     };
   }, [path, name]);
 
-  const getTitle = (revert = false) => {
-    return `Open in Windsurf ${
-      closeOtherWindows !== revert ? "and Close Other" : ""
-    }`;
+  const getTitle = (openInNewWindow = true) => {
+    return openInNewWindow
+      ? "Open in New Windsurf Window"
+      : "Open in Current Windsurf Window";
   };
 
   const { openProject } = useProject();
 
-  const handleOpenProject = (revert = false) => {
-    openProject(props.uri, closeOtherWindows !== revert);
+  const handleOpenProject = (openInNewWindow = true) => {
+    openProject(props.uri, openInNewWindow);
   };
 
   const accessories = [];
@@ -240,9 +239,9 @@ function LocalItem(
             />
             <Action.ShowInFinder path={path} />
             <Action
-              title={getTitle(true)}
+              title={getTitle(false)}
               icon="action-icon.png"
-              onAction={() => handleOpenProject(true)}
+              onAction={() => handleOpenProject(false)}
               shortcut={{ modifiers: ["cmd", "shift"], key: "enter" }}
             />
             <Action.OpenWith
@@ -298,18 +297,18 @@ function RemoteItem(
 
   const uri = props.uri.replace("vscode-remote://", "windsurf-remote://");
 
-  const getTitle = (revert = false) => {
-    return `Open in Windsurf ${
-      closeOtherWindows !== revert ? "and Close Other" : ""
-    }`;
+  const getTitle = (openInNewWindow = true) => {
+    return openInNewWindow
+      ? "Open in New Windsurf Window"
+      : "Open in Current Windsurf Window";
   };
 
-  const getUrl = (uri: string, revert = false) => {
+  const getUrl = (uri: string, openInNewWindow = true) => {
     const url = new URL(uri);
-    if (closeOtherWindows !== revert) {
-      url.searchParams.delete("windowId");
-    } else {
+    if (openInNewWindow) {
       url.searchParams.set("windowId", "_blank");
+    } else {
+      url.searchParams.delete("windowId");
     }
     return url.toString();
   };
@@ -330,9 +329,9 @@ function RemoteItem(
               url={getUrl(uri)}
             />
             <Action.OpenInBrowser
-              title={getTitle(true)}
+              title={getTitle(false)}
               icon="action-icon.png"
-              url={getUrl(uri, true)}
+              url={getUrl(uri, false)}
               shortcut={{ modifiers: ["cmd", "shift"], key: "enter" }}
             />
           </ActionPanel.Section>

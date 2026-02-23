@@ -1,8 +1,11 @@
 import { execFile } from "child_process";
 import { showToast, Toast } from "@raycast/api";
 import { promisify } from "util";
+import fs from "fs";
 
 const execFileAsync = promisify(execFile);
+const BUNDLED_WINDSURF_CLI =
+  "/Applications/Windsurf.app/Contents/Resources/app/bin/windsurf";
 
 type CommandStep = {
   command: string;
@@ -26,43 +29,64 @@ async function runWithFallback(steps: CommandStep[]): Promise<void> {
   throw lastError ?? new Error("All fallback commands failed");
 }
 
+function getCliCandidates(): string[] {
+  const candidates = ["windsurf"];
+  if (fs.existsSync(BUNDLED_WINDSURF_CLI)) {
+    candidates.push(BUNDLED_WINDSURF_CLI);
+  }
+  return candidates;
+}
+
 /**
  * Opens a project in Windsurf
- * Preferred order for reliability on macOS:
- * 1. URL scheme: windsurf://file/{path}
- * 2. macOS open command: open -a Windsurf {path}
- * 3. CLI command: windsurf {path}
+ * When openInNewWindow is true, force a new window if possible.
  */
 export async function openProjectInWindsurf(
   projectPath: string,
-  closeOthers = false
+  openInNewWindow = false
 ): Promise<void> {
-  const urlPath = encodeURIComponent(projectPath);
-  const url = closeOthers
-    ? `windsurf://file/${urlPath}?command=open-new-window`
-    : `windsurf://file/${urlPath}`;
+  const url = new URL(`windsurf://file/${encodeURIComponent(projectPath)}`);
+  if (openInNewWindow) {
+    url.searchParams.set("windowId", "_blank");
+  }
 
-  const openArgs = closeOthers
-    ? ["-a", "Windsurf", "--new", projectPath]
-    : ["-a", "Windsurf", projectPath];
+  const cliCandidates = getCliCandidates();
+  const cliSteps: CommandStep[] = openInNewWindow
+    ? cliCandidates.flatMap((cli) => [
+        { command: cli, args: ["-n", projectPath], label: `${cli} -n <path>` },
+        {
+          command: cli,
+          args: ["--new-window", projectPath],
+          label: `${cli} --new-window <path>`,
+        },
+      ])
+    : cliCandidates.map((cli) => ({
+        command: cli,
+        args: [projectPath],
+        label: `${cli} <path>`,
+      }));
+
+  const openSteps: CommandStep[] = openInNewWindow
+    ? [
+        {
+          command: "open",
+          args: ["-na", "Windsurf", "--args", "-n", projectPath],
+          label: "open -na Windsurf --args -n <path>",
+        },
+      ]
+    : [
+        {
+          command: "open",
+          args: ["-a", "Windsurf", projectPath],
+          label: "open -a Windsurf <path>",
+        },
+      ];
 
   try {
     await runWithFallback([
-      {
-        command: "open",
-        args: [url],
-        label: "open URL scheme",
-      },
-      {
-        command: "open",
-        args: openArgs,
-        label: "open -a Windsurf",
-      },
-      {
-        command: "windsurf",
-        args: [projectPath],
-        label: "windsurf CLI",
-      },
+      { command: "open", args: [url.toString()], label: "open URL scheme" },
+      ...cliSteps,
+      ...openSteps,
     ]);
   } catch (error) {
     console.error("Error opening project in Windsurf:", error);
@@ -79,6 +103,8 @@ export async function openProjectInWindsurf(
  * Opens a new Windsurf window
  */
 export async function openNewWindsurfWindow(): Promise<void> {
+  const cliCandidates = getCliCandidates();
+
   try {
     await runWithFallback([
       {
@@ -86,16 +112,10 @@ export async function openNewWindsurfWindow(): Promise<void> {
         args: ["-na", "Windsurf", "--args", "-n"],
         label: "open -na Windsurf --args -n",
       },
-      {
-        command: "windsurf",
-        args: ["-n"],
-        label: "windsurf -n",
-      },
-      {
-        command: "windsurf",
-        args: ["--new-window"],
-        label: "windsurf --new-window",
-      },
+      ...cliCandidates.flatMap((cli) => [
+        { command: cli, args: ["-n"], label: `${cli} -n` },
+        { command: cli, args: ["--new-window"], label: `${cli} --new-window` },
+      ]),
     ]);
   } catch (error) {
     console.error("Error opening new Windsurf window:", error);
