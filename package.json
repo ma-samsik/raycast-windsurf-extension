@@ -1,8 +1,8 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
-  "name": "windsurf-toolkit",
-  "title": "Windsurf Toolkit",
-  "description": "Control Windsurf directly from Raycast - Search and open recent projects, manage extensions and commands.",
+  "name": "windsurf",
+  "title": "Windsurf",
+  "description": "Control Windsurf directly from Raycast - search and open recent projects, manage extensions, and launch commands.",
   "icon": "windsurf-icon.png",
   "author": "samsik_ma",
   "categories": [
