@@ -5,6 +5,7 @@ import {
   Icon,
   showToast,
   open,
+  closeMainWindow,
   Toast,
   LaunchProps,
   Color,
@@ -323,16 +324,22 @@ function RemoteItem(
       actions={
         <ActionPanel>
           <ActionPanel.Section>
-            <Action.OpenInBrowser
+            <Action
               title={getTitle()}
               icon="action-icon.png"
-              url={getUrl(uri)}
+              onAction={async () => {
+                await open(getUrl(uri));
+                await closeMainWindow();
+              }}
             />
-            <Action.OpenInBrowser
+            <Action
               title={getTitle(false)}
               icon="action-icon.png"
-              url={getUrl(uri, false)}
               shortcut={{ modifiers: ["cmd", "shift"], key: "enter" }}
+              onAction={async () => {
+                await open(getUrl(uri, false));
+                await closeMainWindow();
+              }}
             />
           </ActionPanel.Section>
           <RemoveActionSection {...props} />
